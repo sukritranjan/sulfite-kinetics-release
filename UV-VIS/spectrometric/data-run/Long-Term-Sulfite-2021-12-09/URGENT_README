@@ -1,0 +1,5 @@
+WATER BLANKS WERE NOT COLLECTED FOR THIS DATE (error)
+
+For a temporary kludge, the water blanks for 12/7 were put over here, just so the processing code can run. THEY ARE NOT REALLY BLANKS FOR 12/9!!!!
+
+In future, this should probably be replaced with an average of the 12/7 and 12/17 water blanks, and the effects of this kludge tested and sensitivity tested. 

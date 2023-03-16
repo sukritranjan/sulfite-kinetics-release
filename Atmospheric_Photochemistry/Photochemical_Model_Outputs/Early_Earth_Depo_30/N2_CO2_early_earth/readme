@@ -1,0 +1,1 @@
+IMODE=1 takes ~~50k cycles. IMODE=4 is worse 70k cycles.
