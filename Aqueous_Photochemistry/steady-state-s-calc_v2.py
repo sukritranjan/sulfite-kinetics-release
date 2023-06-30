@@ -10,10 +10,10 @@ singlescenariocalc=False #whether to calculate steady-stateS[IV] in particular s
 plotlossmechanisms=False #whether to make plot showing different loss mechanisms.
 plotsupplymechanisms=False #whether to make plot showing different supply mechanisms.
 
-plotsteadystatecalc_fso2_ocean=True #whether to make plot showing steady-state calc for specific scenario as function of pSO2 for ocean
-plotsteadystatecalc_fso2_lake=True #whether to make plot showing steady-state calc for specific scenario as function of pSO2 for terrestrial waters
-plotsteadystatecalc_fso2_lake_maxsulfite=True #whether to make plot showing controls on sulfite concentration.
-plotsteadystatecalc_fso2_lake_depths=True #whether to make plot showing steady-state calc for different depths
+plotsteadystatecalc_fso2_ocean=False #whether to make plot showing steady-state calc for specific scenario as function of pSO2 for ocean
+plotsteadystatecalc_fso2_lake=False #whether to make plot showing steady-state calc for specific scenario as function of pSO2 for terrestrial waters
+plotsteadystatecalc_fso2_lake_maxsulfite=False #whether to make plot showing controls on sulfite concentration.
+plotsteadystatecalc_fso2_lake_depths=False #whether to make plot showing steady-state calc for different depths
 
 
 ###############################################################################
@@ -593,38 +593,6 @@ if singlescenariocalc:
     v_dep_so2_0=1.0
     longwaveQY0_0=True #If true, QY at wavelengths past which we have constraints is set to 0. If false, QY is set to the last value. 
     K_d_method_0='Morel1991'# Options are Ranjan2022, Morel2007, Morel1991
-    
-   # ###Planet/Atmosphere parameters
-   # mr_so2_surf_0=1.E-10
-   # so2_wetdep_0=4.E8
-   # N_h2o_0=4.486257e+22
-   
-   # #Next block is more general
-   # mr_co2_surf_0=0.1
-   # P_surf_0=1.0 #bar
-   # T_surf_0=288.0
-   # v_dep_so2_0=1.0 #cm/s
-   # k_h2o_0=2.0E-6
-   # wetdep_method_0='model' #If 'model', takes it from calculation from MEAC. If 'calc-raindrop' calculate it from pSO2, pCO2. If 'calc-std', use "standard" value for Giorgi & Chameides 1985 (different from what Hu+2012 use, which may instead be from Seinfeld & Pandis)
-   # K_d_method_0='Morel1991'# Options are Ranjan2022, Morel2007, Morel1991
-   
-   # ##Maximize sulfite
-   # T_sulfite_disprop_exp=5.0*year2s #From Meyer+1979
-   # conc_s_iv_exp=1.0 #M From LBNL tech report 1980.
-   # disprop_rxn_order=4.0 #This maximizes sulfite abundance because the reaction order is high, meaning reaction is suppressed at low concentrations
-   # longwaveQY0_0=True #This maximizes sulfite abundance because it does not photolyze at longer wavelengths.
-   # p_O2_surf_0=3.0E-12 #Estimate from our photochemical model (Ranjan+2020). Low O2 maximizes sulfite
-   
-   # ###Ocean parameters
-   # d_body_0=3.8E5 #cm;
-   # effective_precip_rate_0=k_h2o_0*N_h2o_0*(18.02/6.02E23*0.99)*(year2s/m2cm) #m/year. For ocean, this should just be the model global rate. 
-   # seepage_rate_0=0.0
-   
-   # ##First block: maximize sulfite
-   # water_molabs_choice_0='prebiotic_ocean_high' #Maximizes UV shielding from oceanic constitutents
-   # pH_0=6.25#Minimize ocean pH to maximize sulfite because more S[IV] is in bisulfite, which absorbs less. From Kadoya+2020, Krissansen-Totton+2018.
-   # I_0=1.2 #consistent with specified water composition
-   
    
    ###Numerical parameters
     initial_guess=1.0E-7 #initial guess for sulfite concentration.
@@ -662,42 +630,35 @@ if plotsupplymechanisms:
     p_so2_claire=np.array([5.9E-12, 1.8E-11, 4.6E-11, 9.6E-11]) #Claire+2014
     
     ###Plot: pSO2
-    fig, ax=plt.subplots(2, figsize=(8., 8.))
+    fig, ax=plt.subplots(2, figsize=(8., 8.), sharex=True)
     ax[0].plot(phi_so2_list, mr_so2_list*1.0, linewidth=2, linestyle='-', markersize=10, marker='d', color='black', label='This Work')
-    ax[0].plot(phi_so2_kasting, p_so2_kasting, linewidth=0, color='blue', markersize=10,  marker='d',label='Kasting+1989')
-    ax[0].plot(phi_so2_claire, p_so2_claire, linewidth=0, color='red', markersize=10,  marker='d', label='Claire+2014')
+    ax[0].plot(phi_so2_kasting, p_so2_kasting, linewidth=0, color='blue', markersize=10,  marker='s',label='Kasting+1989')
+    ax[0].plot(phi_so2_claire, p_so2_claire, linewidth=0, color='red', markersize=10,  marker='o', label='Claire+2014')
 
     ax[0].set_yscale('log')
     ax[0].set_ylabel(r'pSO$_2$ (bar)', fontsize=16)
     ax[0].legend(ncol=1, loc='best', fontsize=12)    
 
     ax[0].set_xscale('log')
-    ax[0].set_xlabel(r'$\phi_{SO_{2}}$ (cm$^{-2}$ s$^{-1}$)',fontsize=16)
+    # ax[0].set_xlabel(r'$\phi_{SO_{2}}$ (cm$^{-2}$ s$^{-1}$)',fontsize=16)
     ax[0].set_xlim([3.0E+8, 9.0E+10])
 
     ###Plot: Deposition.                 
     # fig2, ax=plt.subplots(1, figsize=(8., 6.), sharex=True)
-    ax[1].plot(phi_volc_list, s_iv_dry_deposition_flux(P_surf_0, T_surf_0, mr_so2_list, v_dep_so2_0), linewidth=2, linestyle='-', color='black', marker='d', markersize=5, label=r'Dry Deposition')  
-    # ax[1].plot(1.0,s_iv_dry_deposition_flux(P_surf_0, T_surf_0, 5.0E-11, v_dep_so2_0),marker='d', markersize=5, color='grey', label=r'Dry Deposition (Claire+2014, estimated)')  
-    # ax[1].plot(3.0,s_iv_dry_deposition_flux(P_surf_0, T_surf_0, 1.0E-10, v_dep_so2_0),marker='d', markersize=5, color='grey', label=r'Dry Deposition (Claire+2014, estimated)')  
-    ax[1].plot(phi_volc_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0),linewidth=2, marker='d', markersize=5,linestyle='-', color='purple', label=r'Wet Deposition, $S=0$')  
-    ax[1].plot(phi_volc_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0+0.15),linewidth=2,marker='d', markersize=5, linestyle='--', color='purple', label=r'Wet Deposition, $S=0.15$ m/yr')  
-    ax[1].plot(phi_volc_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0+2.0),linewidth=2, marker='d', markersize=5,linestyle=':', color='purple', label=r'Wet Deposition, $S=2$ m/yr')  
-    # # wetdepocalc=np.zeros(np.shape(mr_so2_list))
-    # # for ind in range(0, len(mr_so2_list)):
-    # #     mr_so2=mr_so2_list[ind]
-    # #     wetdepocalc[ind]=s_iv_wet_deposition_flux(P_surf_0, mr_so2, 0.1, False, evaporationrate_0)
-    # # ax.plot(phi_volc_list,wetdepocalc,marker='d', markersize=5, color='blue', label=r'Wet Deposition (This Work -- Approximate Calculation)')  
-    # ax[1].plot(1.0,s_iv_wet_deposition_flux('calc-std', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, 5.0E-11, 0.01, evaporationrate_0),marker='d', markersize=5, color='cyan', label=r'Wet Deposition, $S=0$ (estimated from Claire+2014)')  
-    # ax[1].plot(3.0,s_iv_wet_deposition_flux('calc-std', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, 1.0E-10, 0.01, evaporationrate_0),marker='d', markersize=5, color='cyan', label=r'Wet Deposition, $S=0$(estimated from Claire+2014')  
+    ax[1].plot(phi_so2_list, s_iv_dry_deposition_flux(P_surf_0, T_surf_0, mr_so2_list, v_dep_so2_0), linewidth=2, linestyle='-', color='black', marker='s', markersize=5, label=r'Dry Deposition')  
+
+    ax[1].plot(phi_so2_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0),linewidth=2, marker='o', markersize=5,linestyle='-', color='purple', label=r'Wet Deposition, $S=0$')  
+    ax[1].plot(phi_so2_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0+0.15),linewidth=2,marker='o', markersize=5, linestyle='--', color='purple', label=r'Wet Deposition, $S=0.15$ m/yr')  
+    ax[1].plot(phi_so2_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0+2.0),linewidth=2, marker='o', markersize=5,linestyle=':', color='purple', label=r'Wet Deposition, $S=2$ m/yr')  
 
     ax[1].set_yscale('log')
     ax[1].set_ylabel(r'$F_{S[IV]}$ (cm$^{-2}$ s$^{-1})$', fontsize=16)
     ax[1].legend(ncol=1, loc='best', fontsize=12)    
 
     ax[1].set_xscale('log')
-    ax[1].set_xlabel(r'$\frac{\phi}{\phi_0}$', fontsize=16)
-    ax[1].set_xlim([1.0E-1, 3.0E+1])
+    # ax[1].set_xlabel(r'$\frac{\phi}{\phi_0}$', fontsize=16)
+    # ax[1].set_xlim([1.0E-1, 3.0E+1])
+    ax[1].set_xlabel(r'$\phi_{SO_{2}}$ (cm$^{-2}$ s$^{-1}$)',fontsize=16)
     fig.subplots_adjust(hspace=0.25)
     ax[0].yaxis.set_tick_params(labelsize=14)
     ax[0].xaxis.set_tick_params(labelsize=14)
@@ -748,11 +709,9 @@ if plotlossmechanisms:
     
     ax.plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_body_0, 1.0, 10.0*day2s, 0.09), linewidth=2, linestyle='-', color='red', label=r'Disproportionation, $n=1$, $T_{disp,0}=$10 days, [S[IV]]$_0$=0.09M (Guekezian+1997)')  
     ax.plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_body_0, 2.0, 10.0*day2s, 0.09), linewidth=2, linestyle='--', color='red', label=r'Disproportionation, $n=2$, $T_{disp,0}=$10 days, [S[IV]]$_0$=0.09M (Guekezian+1997)')  
-    # ax.plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_body_0, 4.0, 10.0*day2s, 0.09), linewidth=2, linestyle=':', color='red', label=r'Disproportionation, $n=4$, $T_{disp,0}=$10 days, [S[IV]]$_0$=0.09M (Guekezian+1997)')  
 
     ax.plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_body_0, 1.0, 5.0*year2s, 1.0E-0), linewidth=2, linestyle='-', color='blue', label=r'Disproportionation, $n=1$, $T_{disp,0}=$5 years, [S[IV]]$_0$=1M (Meyer+1979)')  
     ax.plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_body_0, 2.0, 5.0*year2s, 1.0E-0), linewidth=2, linestyle='--', color='blue', label=r'Disproportionation, $n=2$, $T_{disp,0}=$5 years, [S[IV]]$_0$=1M (Meyer+1979)')  
-    # ax.plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_body_0, 4.0, 5.0*year2s, 1.0E-0), linewidth=2, linestyle=':', color='blue', label=r'Disproportionation, $n=4$, $T_{disp,0}=$5 years, [S[IV]]$_0$=1M (Meyer+1979)')  
     
     
     ax.plot(conc_s_iv_list, s_iv_seepage_flux(conc_s_iv_list, 2.0), linewidth=2, linestyle='-', color='orange', label=r'Seepage, S=2 m/yr (Alambama Fishponds)')  
@@ -811,8 +770,7 @@ if plotsteadystatecalc_fso2_ocean:
     ###Plot                
     fig, ax=plt.subplots(2, figsize=(8., 8.), sharex=False)
     ax[0].axhline(1.0E-6, color='black', linestyle='--')
-    ax[0].axhline(1.0E-9, color='black', linestyle='--')
-    # ax[0].axhline(1.0E-12, color='black', linestyle='--')
+    ax[0].axhline(1.0E-9, color='black', linestyle=':')
     
     # ax[0].fill_between(phi_volc_list, get_conc_siv_tot(mr_so2_list*1.0, pH_ocean_max, I_ocean_max), y2=get_conc_siv_tot(mr_so2_list*1.0, pH_ocean_min, I_ocean_min), color='red', label='Sulfite Saturation', alpha=0.5)
     ax[0].plot(phi_volc_list, get_conc_siv_tot(mr_so2_list*1.0, pH_ocean_max, I_ocean_max), color='red', linestyle='--', label='Sulfite Saturation (Lower Limit)')
@@ -824,7 +782,7 @@ if plotsteadystatecalc_fso2_ocean:
     ax[0].set_xlabel(r'$\phi/\phi_0$', fontsize=16)
     ax[0].set_yscale('log')
     ax[0].set_ylabel(r'[S[IV]] (M)', fontsize=16)
-    ax[0].legend(ncol=1, loc='lower right', fontsize=12)    
+    ax[0].legend(ncol=1, loc='lower right', fontsize=10)    
     ax[0].set_xlim([1.0E-1, 3.0E1])
     ax[0].set_ylim([1.0E-11, 1.0E-4])
 
@@ -854,13 +812,12 @@ if plotsteadystatecalc_fso2_ocean:
     ax[1].plot(conc_s_iv_list, photrate1, linewidth=2, linestyle='--', color='purple', label=r'Phot., Min. Efficacy')  
     
     ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_ocean, p_o2_list[2], T_surf_0, pH_ocean_min, I_ocean_min), linewidth=2, linestyle='-', color='green', label=r'Dir. Ox., Max. Efficacy ($\frac{\phi}{\phi_{0}}=1$)')  
-    # ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_ocean, p_o2_list, T_surf_0, pH_ocean_max, I_ocean_max), linewidth=2, linestyle='--', color='green', label=r'Dir. Ox., Min. Efficacy')  
 
 
     ax[1].set_yscale('log')
-    ax[1].set_ylim([1.0E-11, 1.0E+13])
+    ax[1].set_ylim([1.0E-5, 1.0E+13])
     ax[1].set_ylabel(r'$F_{S[IV]}$ (cm$^{-2}$ s$^{-1})$', fontsize=16)
-    ax[1].legend(ncol=2, loc='lower left', fontsize=12)    
+    # ax[1].legend(ncol=2, loc='lower left', fontsize=12)    
 
     ax[1].set_xscale('log')
     ax[1].set_xlabel('[S[IV]] (M)', fontsize=16)
@@ -871,6 +828,9 @@ if plotsteadystatecalc_fso2_ocean:
     
     ax[0].set_title('a', loc='left', fontsize=15)
     ax[1].set_title('b', loc='left', fontsize=15)
+    
+    plt.subplots_adjust(top=0.95, bottom=0.09, hspace=0.25)
+    ax[1].legend(ncol=2, loc='lower left', fontsize=10, bbox_to_anchor=(0, 0, 0.5, .102))
     plt.savefig('./Plots/S-IV_conc_fvolc_ocean_loss.pdf')
     
 if plotsteadystatecalc_fso2_lake:
@@ -906,11 +866,7 @@ if plotsteadystatecalc_fso2_lake:
         carbonatelake_chemmin_geomax_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_carbonatelake_max, I_carbonatelake_max, p_o2, water_molabs_carbonatelake_max, longwaveQY0_min, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)        
         carbonatelake_chemmax_geomin_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_carbonatelake_min, I_carbonatelake_min, p_o2, water_molabs_carbonatelake_min, longwaveQY0_max, K_d_method_0, seepage_rate_carbonatelake_min, effective_precip_rate_carbonatelake_min, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)        
         carbonatelake_chemmin_geomin_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_carbonatelake_min, I_carbonatelake_min, p_o2, water_molabs_carbonatelake_min, longwaveQY0_min, K_d_method_0, seepage_rate_carbonatelake_min, effective_precip_rate_carbonatelake_min, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
-
-
-        # ###Shallow carbonate lake
-        # carbonatelake_shallow_chemmax_geomax_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake_shallow, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_carbonatelake_max, I_carbonatelake_max, p_O2_surf_max, water_molabs_carbonatelake_max, longwaveQY0_max, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
-        # carbonatelake_shallow_chemmin_geomax_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake_shallow, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_carbonatelake_max, I_carbonatelake_max, p_O2_surf_max, water_molabs_carbonatelake_max, longwaveQY0_min, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)   
+ 
         
         ###Freshwater lakes
         freshwaterlake_chemmax_geomax_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_freshwaterlake, I_freshwaterlake, p_o2, water_molabs_freshwaterlake_max, longwaveQY0_max, K_d_method_0, seepage_rate_freshwaterlake_max, effective_precip_rate_freshwaterlake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
@@ -918,17 +874,11 @@ if plotsteadystatecalc_fso2_lake:
         freshwaterlake_chemmax_geomin_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_freshwaterlake, I_freshwaterlake, p_o2, water_molabs_freshwaterlake_min, longwaveQY0_max, K_d_method_0, seepage_rate_freshwaterlake_min, effective_precip_rate_freshwaterlake_min, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
         freshwaterlake_chemmin_geomin_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_freshwaterlake, I_freshwaterlake, p_o2, water_molabs_freshwaterlake_min, longwaveQY0_min, K_d_method_0, seepage_rate_freshwaterlake_min, effective_precip_rate_freshwaterlake_min, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)    
         
-        # ###ferrous lakes
-        # ferrouslake_max_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, 0.1, v_dep_so2_0, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_ferrouslake, I_ferrouslake, p_O2_surf_max, water_molabs_ferrouslake_max, longwaveQY0_max, K_d_method_0, seepage_rate_ferrouslake_max, effective_precip_rate_ferrouslake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
-        # ferrouslake_min_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, 0.1, v_dep_so2_0, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_ferrouslake, I_ferrouslake, p_O2_surf_min, water_molabs_ferrouslake_min, longwaveQY0_min, K_d_method_0, seepage_rate_ferrouslake_min, effective_precip_rate_ferrouslake_min, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)   
         
     ###Plot                
 
     fig, ax=plt.subplots(2, figsize=(8, 8.), sharex=False)    
     ax[0].axhline(1.0E-6, color='black', linestyle='--')
-
-    # ax.fill_between(phi_volc_list,carbonatelake_shallow_chemmin_geomax_list, y2=carbonatelake_shallow_chemmax_geomax_list, color='black', label='Shallow Carbonate Lake, Geologically Favorable', alpha=0.5)
-
 
     ax[0].fill_between(phi_volc_list,carbonatelake_chemmin_geomax_list, y2=carbonatelake_chemmax_geomax_list, color='blue', label='Carbonate Lake, Geologically Favorable', alpha=0.5)
     ax[0].fill_between(phi_volc_list,carbonatelake_chemmin_geomin_list, y2=carbonatelake_chemmax_geomin_list, color='purple', label='Carbonate Lake, Geologically Unfavorable', alpha=0.5)    
@@ -941,7 +891,7 @@ if plotsteadystatecalc_fso2_lake:
     ax[0].set_xlabel(r'$\phi/\phi_0$', fontsize=16)
     ax[0].set_yscale('log')
     ax[0].set_ylabel(r'[S[IV]] (M)', fontsize=16)
-    ax[0].legend(ncol=1, loc='upper left', fontsize=12)    
+    ax[0].legend(ncol=1, loc='upper left', fontsize=10)    
     ax[0].set_ylim([1.0E-8, 1.0E-4])
     ax[0].set_xlim([0.1, 30.0])
     plt.xticks(fontsize=14)
@@ -968,19 +918,17 @@ if plotsteadystatecalc_fso2_lake:
         photrate2[ind]=photcalc.sulfite_photolysis_rate(conc_s_iv, d_lake, pH_carbonatelake_max, I_carbonatelake_max, water_molabs_carbonatelake_max, longwaveQY0_min, K_d_method_0)
         
     ax[1].plot(conc_s_iv_list, photrate2, linewidth=2, linestyle='-', color='purple', label=r'Phot., Max. Efficacy')  
-    ax[1].plot(conc_s_iv_list, photrate1, linewidth=2, linestyle='--', color='purple', label=r'Phot., Min. Efficacy')  
+    ax[1].plot(conc_s_iv_list, photrate1, linewidth=2, linestyle='-.', color='purple', label=r'Phot., Min. Efficacy')  
     
     ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_lake, p_o2_list[2], T_surf_0, pH_carbonatelake_max, I_carbonatelake_max), linewidth=2, linestyle='-', color='green', label=r'Dir. Ox., Max. Efficacy ($\frac{\phi}{\phi_{0}}=1$)')  
-    # ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_lake, p_o2, T_surf_0, pH_carbonatelake_max, I_carbonatelake_max), linewidth=2, linestyle='--', color='green', label=r'Dir. Ox., Min. Efficacy')  
 
-    ax[1].plot(conc_s_iv_list, s_iv_seepage_flux(conc_s_iv_list, 2.0), linewidth=2, linestyle=':', color='gold', label=r'Seepage, $S=2$ m/y')  
+    ax[1].plot(conc_s_iv_list, s_iv_seepage_flux(conc_s_iv_list, 2.0), linewidth=2, linestyle=':', color='cyan', label=r'Seepage, $S=2$ m/y')  
     ax[1].axhline(s_iv_wet_deposition_flux(wetdep_method_0, so2_wetdep_list[2], N_h2o_list[2], k_h2o_0, P_surf_0, mr_so2_list[2], mr_co2_surf_0, evaporationrate_lake+2.0), color='grey', linestyle=':', label=r'SO$_2$ Wet Dep.,$S=2$ m/y,$\frac{\phi}{\phi_{0}}=1$')    
 
-
+    
     ax[1].set_yscale('log')
     ax[1].set_ylim([3.0E-3, 3.0E+12])
     ax[1].set_ylabel(r'$F_{S[IV]}$ (cm$^{-2}$ s$^{-1})$', fontsize=16)
-    ax[1].legend(ncol=2, loc='lower left', fontsize=11)    
 
     ax[1].set_xscale('log')
     ax[1].set_xlabel('[S[IV]] (M)', fontsize=16)
@@ -988,10 +936,15 @@ if plotsteadystatecalc_fso2_lake:
     
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)    
-    fig.subplots_adjust(hspace=0.25)
-
+    
     ax[0].set_title('a', loc='left', fontsize=15)
     ax[1].set_title('b', loc='left', fontsize=15)
+    # plt.subplots_adjust(top=0.95, bottom=0.09, hspace=0.9)
+    # ax[1].legend(ncol=3, loc='lower left', fontsize=10, bbox_to_anchor=(-0.17, 1.1, 0.5, .102))
+    plt.subplots_adjust(top=0.95, bottom=0.09, hspace=0.25)
+    ax[1].legend(ncol=2, loc='lower left', fontsize=10, bbox_to_anchor=(0, 0, 0.5, .102))
+    
+
     plt.savefig('./Plots/S-IV_conc_fvolc_lake_loss.pdf')
 
 if plotsteadystatecalc_fso2_lake_maxsulfite:
@@ -1039,9 +992,6 @@ if plotsteadystatecalc_fso2_lake_maxsulfite:
     ax.fill_between(phi_volc_list,carbonatelake_chemmin_geomax_list, y2=carbonatelake_chemmax_geomax_list, color='blue', label='Carbonate Lake, Geologically Favorable', alpha=0.5)
     ax.fill_between(phi_volc_list,carbonatelake_chemmin_1_list, y2=carbonatelake_chemmax_1_list, color='purple', label='Carbonate Lake, GF, Low $a(\lambda)$', alpha=0.5)
     ax.fill_between(phi_volc_list,carbonatelake_chemmin_geomin_list, y2=carbonatelake_chemmax_geomin_list, color='red', label='Carbonate Lake, Geologically Unfavorable', alpha=0.5)
-    
-    # ax.fill_between(phi_volc_list,carbonatelake_shallow_chemmin_geomax_list, y2=carbonatelake_shallow_chemmax_geomax_list, color='black', label='Shallow Carbonate Lake, Geologically Favorable', alpha=0.5)
-
     
 
     
@@ -1096,14 +1046,6 @@ if plotsteadystatecalc_fso2_lake_depths:
         freshwaterlake_chemmax_100_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 100.0, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_freshwaterlake, I_freshwaterlake, p_o2, water_molabs_freshwaterlake_max, longwaveQY0_max, K_d_method_0, seepage_rate_freshwaterlake_max, effective_precip_rate_freshwaterlake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
         freshwaterlake_chemmin_100_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 100.0, disprop_rxn_order_min, T_sulfite_disprop_exp_max, conc_s_iv_exp_min, pH_freshwaterlake, I_freshwaterlake, p_o2, water_molabs_freshwaterlake_max, longwaveQY0_min, K_d_method_0, seepage_rate_freshwaterlake_max, effective_precip_rate_freshwaterlake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)    
 
-        # carbonatelake_chemmax_1_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 1.0, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_carbonatelake_max, I_carbonatelake_max, p_o2, water_molabs_carbonatelake_min, longwaveQY0_max, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
-        # carbonatelake_chemmin_1_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 1.0, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_carbonatelake_max, I_carbonatelake_max, p_o2, water_molabs_carbonatelake_min, longwaveQY0_min, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)    
-        
-        # carbonatelake_chemmax_10_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 10.0, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_carbonatelake_max, I_carbonatelake_max, p_o2, water_molabs_carbonatelake_min, longwaveQY0_max, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
-        # carbonatelake_chemmin_10_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 10.0, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_carbonatelake_max, I_carbonatelake_max, p_o2, water_molabs_carbonatelake_min, longwaveQY0_min, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)    
-        
-        # carbonatelake_chemmax_100_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 100.0, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max, pH_carbonatelake_max, I_carbonatelake_max, p_o2, water_molabs_carbonatelake_min, longwaveQY0_max, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)
-        # carbonatelake_chemmin_100_list[ind]=fsolve(eqn, lake_initial_guess, args=(P_surf_0, T_surf_0, mr_so2, mr_co2_surf_0, v_dep_so2_0, 100.0, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min, pH_carbonatelake_max, I_carbonatelake_max, p_o2, water_molabs_carbonatelake_min, longwaveQY0_min, K_d_method_0, seepage_rate_carbonatelake_max, effective_precip_rate_carbonatelake_max, wetdep_method_0, so2_wetdep, N_h2o, k_h2o_0), xtol=1.0E-6, maxfev=10000)  
     
     ###Plot                
     fig, ax=plt.subplots(1, figsize=(8, 6.), sharex=False)    
@@ -1113,10 +1055,6 @@ if plotsteadystatecalc_fso2_lake_depths:
     ax.fill_between(phi_volc_list,freshwaterlake_chemmin_10_list, y2=freshwaterlake_chemmax_10_list, color='green', label='10 cm', alpha=0.5)
     ax.fill_between(phi_volc_list,freshwaterlake_chemmin_100_list, y2=freshwaterlake_chemmax_100_list, color='blue', label='100 cm', alpha=0.5)
 
-    
-    # ax.fill_between(phi_volc_list,carbonatelake_chemmin_1_list, y2=carbonatelake_chemmax_1_list, color='gold', label='1 cm', alpha=0.5)
-    # ax.fill_between(phi_volc_list,carbonatelake_chemmin_10_list, y2=carbonatelake_chemmax_10_list, color='green', label='10 cm', alpha=0.5)
-    # ax.fill_between(phi_volc_list,carbonatelake_chemmin_100_list, y2=carbonatelake_chemmax_100_list, color='blue', label='100 cm', alpha=0.5)
     
     ax.set_xscale('log')
     ax.set_xlabel(r'$\phi/\phi_0$', fontsize=16)
