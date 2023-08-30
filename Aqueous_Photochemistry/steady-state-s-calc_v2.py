@@ -8,12 +8,12 @@ This version changes the way figures are plotted.
 ###############################################################################
 singlescenariocalc=False #whether to calculate steady-stateS[IV] in particular scenario.
 plotlossmechanisms=False #whether to make plot showing different loss mechanisms.DEFUNCT
-plotsupplymechanisms=True #whether to make plot showing different supply mechanisms.
+plotsupplymechanisms=False #whether to make plot showing different supply mechanisms.
 
 plotsteadystatecalc_fso2_ocean=True #whether to make plot showing steady-state calc for specific scenario as function of pSO2 for ocean
 plotsteadystatecalc_fso2_lake=True #whether to make plot showing steady-state calc for specific scenario as function of pSO2 for terrestrial waters
-plotsteadystatecalc_fso2_lake_maxsulfite=True #whether to make plot showing controls on sulfite concentration.
-plotsteadystatecalc_fso2_lake_depths=True #whether to make plot showing steady-state calc for different depths
+plotsteadystatecalc_fso2_lake_maxsulfite=False #whether to make plot showing controls on sulfite concentration.
+plotsteadystatecalc_fso2_lake_depths=False #whether to make plot showing steady-state calc for different depths
 
 
 ###############################################################################
@@ -637,7 +637,7 @@ if plotsupplymechanisms:
 
     ax[0].set_yscale('log')
     ax[0].set_ylabel(r'pSO$_2$ (bar)', fontsize=16)
-    ax[0].legend(ncol=1, loc='best', fontsize=12)    
+    ax[0].legend(ncol=1, loc='best', fontsize=11.5)    
 
     ax[0].set_xscale('log')
     ax[0].set_xlabel(r'$\phi_{SO_{2}}$ (cm$^{-2}$ s$^{-1}$)',fontsize=16)
@@ -647,7 +647,7 @@ if plotsupplymechanisms:
 
     ###Plot: Deposition.                 
     # fig2, ax=plt.subplots(1, figsize=(8., 6.), sharex=True)
-    ax[1].plot(phi_so2_list, s_iv_dry_deposition_flux(P_surf_0, T_surf_0, mr_so2_list, v_dep_so2_0), linewidth=2, linestyle='-', color='black', marker='s', markersize=5, label=r'Dry Deposition')  
+    ax[1].plot(phi_volc_list, s_iv_dry_deposition_flux(P_surf_0, T_surf_0, mr_so2_list, v_dep_so2_0), linewidth=2, linestyle='-', color='black', marker='s', markersize=5, label=r'Dry Deposition')  
 
     ax[1].plot(phi_volc_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0),linewidth=2, marker='o', markersize=5,linestyle='-', color='purple', label=r'Wet Deposition, $S=0$')  
     ax[1].plot(phi_volc_list,s_iv_wet_deposition_flux('model', so2_wetdep_list, h2o_col_den_list, k_h2o, P_surf_0, mr_so2_list, 0.1, evaporationrate_0+0.15),linewidth=2,marker='o', markersize=5, linestyle='--', color='purple', label=r'Wet Deposition, $S=0.15$ m/yr')  
@@ -655,13 +655,13 @@ if plotsupplymechanisms:
 
     ax[1].set_yscale('log')
     ax[1].set_ylabel(r'$F_{S[IV]}$ (cm$^{-2}$ s$^{-1})$', fontsize=16)
-    ax[1].legend(ncol=1, loc='best', fontsize=12)    
+    ax[1].legend(ncol=1, loc='best', fontsize=11.5)    
 
     ax[1].set_xscale('log')
     ax[1].set_xlabel(r'$\frac{\phi}{\phi_0}$', fontsize=16)
     ax[1].set_xlim([1.0E-1, 3.0E+1])
 
-    fig.subplots_adjust(hspace=0.2)
+    fig.subplots_adjust(hspace=0.33)
     ax[0].yaxis.set_tick_params(labelsize=14)
     ax[0].xaxis.set_tick_params(labelsize=14)
     ax[1].yaxis.set_tick_params(labelsize=14)
@@ -669,6 +669,21 @@ if plotsupplymechanisms:
     
     ax[0].set_title('a', loc='left', fontsize=15)
     ax[1].set_title('b', loc='left', fontsize=15)
+    
+    def so2_to_volc(phi_so2):
+        return phi_so2/(3.0E9)
+    
+    def volc_to_so2(phi_volc):
+        return phi_volc*3.0E9
+    
+    secax0=ax[0].secondary_xaxis('bottom', functions=(so2_to_volc, volc_to_so2))
+    # secax0.set_xlabel(r'$\frac{\phi}{\phi_0}$', fontsize=16, labelpad=-10)
+    secax0.xaxis.set_tick_params(labelsize=14)
+    
+    secax1=ax[1].secondary_xaxis('top', functions=(volc_to_so2, so2_to_volc))
+    # secax1.set_xlabel(r'$\phi_{SO_{2}}$ (cm$^{-2}$ s$^{-1}$)', fontsize=16)    
+    secax1.xaxis.set_tick_params(labelsize=14)
+
     plt.savefig('./Plots/S-IV_Prod.pdf')
     
     
@@ -775,10 +790,10 @@ if plotsteadystatecalc_fso2_ocean:
     ax[0].axhline(1.0E-9, color='black', linestyle=':')
     
     # ax[0].fill_between(phi_volc_list, get_conc_siv_tot(mr_so2_list*1.0, pH_ocean_max, I_ocean_max), y2=get_conc_siv_tot(mr_so2_list*1.0, pH_ocean_min, I_ocean_min), color='red', label='Sulfite Saturation', alpha=0.5)
-    ax[0].plot(phi_volc_list, get_conc_siv_tot(mr_so2_list*1.0, pH_ocean_max, I_ocean_max), color='red', linestyle='--', label='Sulfite Saturation (Lower Limit)')
+    ax[0].plot(phi_volc_list, get_conc_siv_tot(mr_so2_list*1.0, pH_ocean_max, I_ocean_max), color=(213/255.0, 94/255.0, 0), linestyle='--', label='Sulfite Saturation (Lower Limit)')
 
-    ax[0].fill_between(phi_volc_list,ocean_chemmax_geomin_list, y2=ocean_chemmax_geomax_list, color='green', label='Ocean, Inefficient Chemical Loss', alpha=0.5)
-    ax[0].fill_between(phi_volc_list,ocean_chemmin_geomin_list, y2=ocean_chemmin_geomax_list, color='gold', label='Ocean, Efficient Chemical Loss', alpha=0.5)
+    ax[0].fill_between(phi_volc_list,ocean_chemmax_geomin_list, y2=ocean_chemmax_geomax_list, color=(0, 158/255.0, 115/255.0), label='Ocean, Inefficient Chemical Loss', alpha=0.5)
+    ax[0].fill_between(phi_volc_list,ocean_chemmin_geomin_list, y2=ocean_chemmin_geomax_list, color=(230/255.0, 159/255.0, 0), label='Ocean, Efficient Chemical Loss', alpha=0.5)
     
     ax[0].set_xscale('log')
     ax[0].set_xlabel(r'$\phi/\phi_0$', fontsize=16)
@@ -795,13 +810,13 @@ if plotsteadystatecalc_fso2_ocean:
     conc_s_iv_list=np.logspace(-11.0, -5.0, num=50, endpoint=True, base=10.0) #sulfite concentrations.
 
     ax[1].axhline(s_iv_dry_deposition_flux(P_surf_0, T_surf_0, mr_so2_list[2], v_dep_so2_0), color='black', linestyle='-', label=r'SO$_2$ Dry Dep., $\frac{\phi}{\phi_{0}}=1$')    
-    ax[1].axhline(s_iv_wet_deposition_flux(wetdep_method_0, so2_wetdep_list[2], N_h2o_list[2], k_h2o_0, P_surf_0, mr_so2_list[2], mr_co2_surf_0, effective_precip_rate_ocean_list[2]), color='grey', linestyle='-', label=r'SO$_2$ Wet Dep., $\frac{\phi}{\phi_{0}}=1$')    
+    ax[1].axhline(s_iv_wet_deposition_flux(wetdep_method_0, so2_wetdep_list[2], N_h2o_list[2], k_h2o_0, P_surf_0, mr_so2_list[2], mr_co2_surf_0, effective_precip_rate_ocean_list[2]), color=(240/255.0, 228/255.0, 66/255.0), linestyle='-', label=r'SO$_2$ Wet Dep., $\frac{\phi}{\phi_{0}}=1$')    
 
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='-', color='red', label=r'Disprop., $n=1$, $T_{disp,0}=$1 yr')  
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_max, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='--', color='red', label=r'Disprop., $n=4$, $T_{disp,0}=$1 yr')  
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='-', color=(213/255.0, 94/255.0, 0), label=r'Disprop., $n=1$, $T_{disp,0}=$1 yr')  
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_max, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='--', color=(213/255.0, 94/255.0, 0), label=r'Disprop., $n=4$, $T_{disp,0}=$1 yr')  
 
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_min, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='-', color='blue', label=r'Disprop., $n=1$, $T_{disp,0}=$5 yr')  
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='--', color='blue', label=r'Disprop., $n=4$, $T_{disp,0}=$5 yr')  
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_min, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='-', color=(0, 114/255.0, 178/255.0), label=r'Disprop., $n=1$, $T_{disp,0}=$5 yr')  
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_ocean, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='--', color=(0, 114/255.0, 178/255.0), label=r'Disprop., $n=4$, $T_{disp,0}=$5 yr')  
     
     photrate1=np.zeros(np.shape(conc_s_iv_list))
     photrate2=np.zeros(np.shape(conc_s_iv_list))
@@ -810,10 +825,10 @@ if plotsteadystatecalc_fso2_ocean:
         photrate1[ind]=photcalc.sulfite_photolysis_rate(conc_s_iv, d_ocean, pH_ocean_max, I_ocean_max, water_molabs_ocean_max, longwaveQY0_max, K_d_method_0)
         photrate2[ind]=photcalc.sulfite_photolysis_rate(conc_s_iv, d_ocean, pH_ocean_min, I_ocean_min, water_molabs_ocean_min, longwaveQY0_min, K_d_method_0)
         
-    ax[1].plot(conc_s_iv_list, photrate2, linewidth=2, linestyle='-', color='purple', label=r'Phot., Max. Efficacy')  
-    ax[1].plot(conc_s_iv_list, photrate1, linewidth=2, linestyle='--', color='purple', label=r'Phot., Min. Efficacy')  
+    ax[1].plot(conc_s_iv_list, photrate2, linewidth=2, linestyle='-', color=(204/255.0, 121/255.0, 167/255.0), label=r'Phot., Max. Efficacy')  
+    ax[1].plot(conc_s_iv_list, photrate1, linewidth=2, linestyle='--', color=(204/255.0, 121/255.0, 167/255.0), label=r'Phot., Min. Efficacy')  
     
-    ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_ocean, p_o2_list[2], T_surf_0, pH_ocean_min, I_ocean_min), linewidth=2, linestyle='-', color='green', label=r'Dir. Ox., Max. Efficacy ($\frac{\phi}{\phi_{0}}=1$)')  
+    ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_ocean, p_o2_list[2], T_surf_0, pH_ocean_min, I_ocean_min), linewidth=2, linestyle='-', color=(0, 158/255.0, 115/255.0), label=r'Dir. Ox., Max. Efficacy ($\frac{\phi}{\phi_{0}}=1$)')  
 
 
     ax[1].set_yscale('log')
@@ -882,11 +897,11 @@ if plotsteadystatecalc_fso2_lake:
     fig, ax=plt.subplots(2, figsize=(8, 8.), sharex=False)    
     ax[0].axhline(1.0E-6, color='black', linestyle='--')
 
-    ax[0].fill_between(phi_volc_list,carbonatelake_chemmin_geomax_list, y2=carbonatelake_chemmax_geomax_list, color='blue', label='Carbonate Lake, Geologically Favorable', alpha=0.5)
-    ax[0].fill_between(phi_volc_list,carbonatelake_chemmin_geomin_list, y2=carbonatelake_chemmax_geomin_list, color='purple', label='Carbonate Lake, Geologically Unfavorable', alpha=0.5)    
+    ax[0].fill_between(phi_volc_list,carbonatelake_chemmin_geomax_list, y2=carbonatelake_chemmax_geomax_list, color=(213/255.0, 94/255.0, 0), label='Carbonate Lake, Geologically Favorable', alpha=0.5)
+    ax[0].fill_between(phi_volc_list,carbonatelake_chemmin_geomin_list, y2=carbonatelake_chemmax_geomin_list, color=(204/255.0, 121/255.0, 167/255.0), label='Carbonate Lake, Geologically Unfavorable', alpha=0.5)    
     
-    ax[0].fill_between(phi_volc_list,freshwaterlake_chemmin_geomax_list, y2=freshwaterlake_chemmax_geomax_list, color='gold', label='Freshwater Lake, Geologically Favorable', alpha=0.5)
-    ax[0].fill_between(phi_volc_list,freshwaterlake_chemmin_geomin_list, y2=freshwaterlake_chemmax_geomin_list, color='orange', label='Freshwater Lake, Geologically Unfavorable', alpha=0.5)        
+    ax[0].fill_between(phi_volc_list,freshwaterlake_chemmin_geomax_list, y2=freshwaterlake_chemmax_geomax_list, color=(0, 114/255.0, 178/255.0), label='Freshwater Lake, Geologically Favorable', alpha=0.5)
+    ax[0].fill_between(phi_volc_list,freshwaterlake_chemmin_geomin_list, y2=freshwaterlake_chemmax_geomin_list, color=(0/255.0, 158/255.0, 115/255.0), label='Freshwater Lake, Geologically Unfavorable', alpha=0.5)        
     
     
     ax[0].set_xscale('log')
@@ -903,14 +918,15 @@ if plotsteadystatecalc_fso2_lake:
     conc_s_iv_list=np.logspace(-8.0, -4.0, num=50, endpoint=True, base=10.0) #sulfite concentrations.
     
     ax[1].axhline(s_iv_dry_deposition_flux(P_surf_0, T_surf_0, mr_so2_list[2], v_dep_so2_0), color='black', linestyle='-', label=r'SO$_2$ Dry Dep.,$\frac{\phi}{\phi_{0}}=1$')    
-    ax[1].axhline(s_iv_wet_deposition_flux(wetdep_method_0, so2_wetdep_list[2], N_h2o_list[2], k_h2o_0, P_surf_0, mr_so2_list[2], mr_co2_surf_0, evaporationrate_lake+0.0), color='grey', linestyle='-', label=r'SO$_2$ Wet Dep.,$S=0$ m/y,$\frac{\phi}{\phi_{0}}=1$')    
-    
-    
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='-', color='red', label=r'Disprop., $n=1$, $T_{disp,0}=$1 yr')  
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='--', color='red', label=r'Disprop., $n=4$, $T_{disp,0}=$1 yr')  
+    ax[1].axhline(s_iv_wet_deposition_flux(wetdep_method_0, so2_wetdep_list[2], N_h2o_list[2], k_h2o_0, P_surf_0, mr_so2_list[2], mr_co2_surf_0, evaporationrate_lake+0.0), color=(240/255.0, 228/255.0, 66/255.0), linestyle='-', label=r'SO$_2$ Wet Dep.,$S=0$ m/y,$\frac{\phi}{\phi_{0}}=1$')    
+    ax[1].axhline(s_iv_wet_deposition_flux(wetdep_method_0, so2_wetdep_list[2], N_h2o_list[2], k_h2o_0, P_surf_0, mr_so2_list[2], mr_co2_surf_0, evaporationrate_lake+2.0), color=(240/255.0, 228/255.0, 66/255.0), linestyle=':', label=r'SO$_2$ Wet Dep.,$S=2$ m/y,$\frac{\phi}{\phi_{0}}=1$')    
 
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='-', color='blue', label=r'Disprop., $n=1$, $T_{disp,0}=$5 yr')  
-    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='--', color='blue', label=r'Disprop., $n=4$, $T_{disp,0}=$5 yr')  
+    
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='-', color=(213/255.0, 94/255.0,0), label=r'Disprop., $n=1$, $T_{disp,0}=$1 yr')  
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_min, conc_s_iv_exp_min), linewidth=2, linestyle='--', color=(213/255.0, 94/255.0,0), label=r'Disprop., $n=4$, $T_{disp,0}=$1 yr')  
+
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_min, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='-', color=(0, 114/255.0, 178/255.0), label=r'Disprop., $n=1$, $T_{disp,0}=$5 yr')  
+    ax[1].plot(conc_s_iv_list, s_iv_disproportionation_flux(conc_s_iv_list, d_lake, disprop_rxn_order_max, T_sulfite_disprop_exp_max, conc_s_iv_exp_max), linewidth=2, linestyle='--', color=(0, 114/255.0, 178/255.0), label=r'Disprop., $n=4$, $T_{disp,0}=$5 yr')  
     
     photrate1=np.zeros(np.shape(conc_s_iv_list))
     photrate2=np.zeros(np.shape(conc_s_iv_list))
@@ -919,13 +935,12 @@ if plotsteadystatecalc_fso2_lake:
         photrate1[ind]=photcalc.sulfite_photolysis_rate(conc_s_iv, d_lake, pH_carbonatelake_max, I_carbonatelake_max, water_molabs_carbonatelake_max, longwaveQY0_max, K_d_method_0)
         photrate2[ind]=photcalc.sulfite_photolysis_rate(conc_s_iv, d_lake, pH_carbonatelake_max, I_carbonatelake_max, water_molabs_carbonatelake_max, longwaveQY0_min, K_d_method_0)
         
-    ax[1].plot(conc_s_iv_list, photrate2, linewidth=2, linestyle='-', color='purple', label=r'Phot., Max. Efficacy')  
-    ax[1].plot(conc_s_iv_list, photrate1, linewidth=2, linestyle='-.', color='purple', label=r'Phot., Min. Efficacy')  
+    ax[1].plot(conc_s_iv_list, photrate2, linewidth=2, linestyle='-', color=(204/255.0, 121/255.0, 167/255.0), label=r'Phot., Max. Efficacy')  
+    ax[1].plot(conc_s_iv_list, photrate1, linewidth=2, linestyle='-.', color=(204/255.0, 121/255.0, 167/255.0), label=r'Phot., Min. Efficacy')  
     
-    ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_lake, p_o2_list[2], T_surf_0, pH_carbonatelake_max, I_carbonatelake_max), linewidth=2, linestyle='-', color='green', label=r'Dir. Ox., Max. Efficacy ($\frac{\phi}{\phi_{0}}=1$)')  
+    ax[1].plot(conc_s_iv_list, s_iv_o2_oxidation_seawater_flux(conc_s_iv_list, d_lake, p_o2_list[2], T_surf_0, pH_carbonatelake_max, I_carbonatelake_max), linewidth=2, linestyle='-', color=(0, 158/255.0, 115/255.0), label=r'Dir. Ox., Max. Efficacy ($\frac{\phi}{\phi_{0}}=1$)')  
 
-    ax[1].plot(conc_s_iv_list, s_iv_seepage_flux(conc_s_iv_list, 2.0), linewidth=2, linestyle=':', color='cyan', label=r'Seepage, $S=2$ m/y')  
-    ax[1].axhline(s_iv_wet_deposition_flux(wetdep_method_0, so2_wetdep_list[2], N_h2o_list[2], k_h2o_0, P_surf_0, mr_so2_list[2], mr_co2_surf_0, evaporationrate_lake+2.0), color='grey', linestyle=':', label=r'SO$_2$ Wet Dep.,$S=2$ m/y,$\frac{\phi}{\phi_{0}}=1$')    
+    ax[1].plot(conc_s_iv_list, s_iv_seepage_flux(conc_s_iv_list, 2.0), linewidth=2, linestyle=':', color=(86/255.0, 180/255.0, 233/255.0), label=r'Seepage, $S=2$ m/y')  
 
     
     ax[1].set_yscale('log')
